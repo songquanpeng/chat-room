@@ -3,53 +3,60 @@ const path = require("path");
 const cors = require("cors");
 const serveStatic = require("serve-static");
 const uploadRouter = require("./file");
+const app = express();
+const server = require("http").createServer(app);
+let io = require("socket.io")(server);
+let users = new Set();
 
-let app = express();
 app.use(cors());
 app.use("/upload", uploadRouter);
-
-let server = require("http").createServer(app);
-let io = require("socket.io")(server);
-let users = new Map();
+app.use(serveStatic(path.join(__dirname, "public"), { maxAge: "600000" }));
+app.use(function (req, res) {
+  res.status(404);
+  res.send({ error: "Not found" });
+});
 
 io.sockets.on("connection", function (socket) {
-  socket.on("connect", () => {});
-
   socket.on("register", function (username) {
     username = username.trim();
     if (users.has(username)) {
       socket.emit("conflict username");
     } else {
+      users.add(username);
       socket.username = username;
-      users.set(username, []);
       socket.emit("register success");
-      io.sockets.emit("system", `${username} connected`);
+      let data = {
+        content: `user "${username}" has connected`,
+        sender: "system",
+        type: "TEXT",
+      };
+      io.sockets.emit("message", data);
     }
   });
 
-  socket.on("message", function (message) {
-    message = message.trim();
-    if (message === "") return;
+  socket.on("message", function (data) {
+    if (!data) return;
+    if (data.content === undefined) return;
+    if (data.type === undefined) data.type = "TEXT";
     let username = socket.username;
     if (username === undefined || username === "") {
       username = "Anonymous";
     }
-    io.emit("message", message, username);
+    data.sender = username;
+    io.emit("message", data);
   });
 
   socket.on("disconnect", () => {
     if (socket.username) {
       users.delete(socket.username);
-      io.sockets.emit("system", `${socket.username} dis connected`);
+      let data = {
+        content: `${socket.username} dis connected`,
+        sender: "system",
+        type: "TEXT",
+      };
+      io.sockets.emit("message", data);
     }
   });
-});
-
-app.use(serveStatic(path.join(__dirname, "public"), { maxAge: "600000" }));
-
-app.use(function (req, res) {
-  res.status(404);
-  res.send({ error: "Not found" });
 });
 
 server.listen(process.env.PORT || 3000);

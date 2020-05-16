@@ -45,7 +45,10 @@ function processInput(input) {
       clearMessage();
       break;
     default:
-      socket.emit("message", input);
+      let data = {
+        content: input,
+      };
+      socket.emit("message", data);
       break;
   }
   clearInputBox();
@@ -59,19 +62,17 @@ function clearMessage() {
   dialogElement.innerHTML = "";
 }
 
-function createMessage(message, source, position) {
-  // TODO: multiple formats support
-  if (source === undefined || source === "") source = "system";
+function createMessage(content, sender = "system", type = "TEXT") {
   let e = document.createElement("p");
-  e.innerText = `${source}: ${message}`;
+  e.innerText = `${sender}: ${content}`;
   dialogElement.appendChild(e);
   dialogElement.scrollTop = dialogElement.scrollHeight;
 }
 
 function initSocket() {
   socket = io();
-  socket.on("message", function (message, username) {
-    createMessage(message, username);
+  socket.on("message", function (message) {
+    createMessage(message.content, message.sender, message.type);
   });
   socket.on("register success", function () {
     registered = true;
@@ -79,9 +80,6 @@ function initSocket() {
   });
   socket.on("conflict username", function () {
     createMessage("The username is already taken.");
-  });
-  socket.on("system", function (message) {
-    createMessage(message);
   });
 }
 

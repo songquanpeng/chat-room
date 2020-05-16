@@ -54,6 +54,7 @@ body {
 .dialog p {
     padding: 0;
     margin: 4px;
+    font-family: Consolas, monospace;
 }
 
 

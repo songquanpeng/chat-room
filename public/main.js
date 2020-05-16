@@ -6,7 +6,20 @@ let inputElement;
 let fileInputElement;
 
 function isImage(fileName) {
-  return fileName.endsWith("png") || fileName.endsWith("jpg");
+  let extension = fileName.split(".").pop().toLowerCase();
+  let formats = [
+    "png",
+    "jpg",
+    "bmp",
+    "gif",
+    "ico",
+    "jpeg",
+    "apng",
+    "svg",
+    "tiff",
+    "webp",
+  ];
+  return formats.includes(extension);
 }
 
 function uploadFile() {
@@ -22,8 +35,7 @@ function uploadFile() {
     })
     .then((data) => {
       let filePath = data.path;
-      if (isImage(file.name)) {
-      }
+      sendMessage(filePath, isImage(file.name) ? "IMAGE" : "FILE");
     });
 }
 
@@ -39,16 +51,13 @@ function processInput(input) {
     case "":
       break;
     case "\\help":
-      createMessage("https://github.com/songquanpeng/chat-room", "system");
+      printMessage("https://github.com/songquanpeng/chat-room", "system");
       break;
     case "\\clear":
       clearMessage();
       break;
     default:
-      let data = {
-        content: input,
-      };
-      socket.emit("message", data);
+      sendMessage(input);
       break;
   }
   clearInputBox();
@@ -62,24 +71,55 @@ function clearMessage() {
   dialogElement.innerHTML = "";
 }
 
-function createMessage(content, sender = "system", type = "TEXT") {
-  let e = document.createElement("p");
-  e.innerText = `${sender}: ${content}`;
+function printMessage(content, sender = "system", type = "TEXT") {
+  let name = document.createElement("span");
+  name.innerText = `${sender}: `;
+  name.setAttribute("class", "name");
+  dialogElement.appendChild(name);
+  let e;
+  switch (type) {
+    case "IMAGE":
+      e = document.createElement("img");
+      e.setAttribute("src", content);
+      e.setAttribute("alt", content);
+      break;
+    case "FILE":
+      e = document.createElement("a");
+      e.setAttribute("href", content);
+      e.setAttribute("download", content);
+      e.innerText = content;
+      break;
+    case "TEXT":
+    default:
+      e = document.createElement("span");
+      e.innerText = `${content}`;
+      break;
+  }
   dialogElement.appendChild(e);
+  let breadLine = document.createElement("br");
+  dialogElement.appendChild(breadLine);
   dialogElement.scrollTop = dialogElement.scrollHeight;
+}
+
+function sendMessage(content, type = "TEXT") {
+  let data = {
+    content,
+    type,
+  };
+  socket.emit("message", data);
 }
 
 function initSocket() {
   socket = io();
   socket.on("message", function (message) {
-    createMessage(message.content, message.sender, message.type);
+    printMessage(message.content, message.sender, message.type);
   });
   socket.on("register success", function () {
     registered = true;
     clearInputBox();
   });
   socket.on("conflict username", function () {
-    createMessage("The username is already taken.");
+    printMessage("The username is already taken.");
   });
 }
 
@@ -104,5 +144,5 @@ window.onload = function () {
       send();
     }
   });
-  createMessage("Input your username");
+  printMessage("please input your username");
 };

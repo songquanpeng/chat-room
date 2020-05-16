@@ -8,6 +8,7 @@ html, body {
     margin: 0;
     padding: 0;
     background-color: rgb(233, 236, 239);
+    font-family: Consolas, "Microsoft YaHei", monospace;
 }
 
 body {
@@ -51,12 +52,25 @@ body {
     margin-top: 8px;
 }
 
-.dialog p {
+.dialog p, .dialog span {
     padding: 0;
     margin: 4px;
-    font-family: Consolas, monospace;
 }
 
+.dialog a {
+    color: rgb(0, 164, 255);
+    font-weight: bold;
+}
+
+.dialog img {
+    max-width: 60%;
+    display: block;
+}
+
+.name {
+    font-weight: bold;
+   color: rgb(1, 136, 251);
+}
 
 .panel {
     width: 100%;
@@ -65,13 +79,14 @@ body {
     display: flex;
     margin-top: 8px;
     margin-bottom: 8px;
+    font-family: Consolas, "Microsoft YaHei", monospace;
 }
 
 .message-box {
     flex-grow: 1;
     padding: 4px 8px;
     font-size: large;
-    font-family: Consolas, monospace;
+    font-family: Consolas, "Microsoft YaHei", monospace;
 }
 
 .tool-bar {

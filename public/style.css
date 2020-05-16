@@ -74,6 +74,23 @@ body {
     font-family: Consolas, monospace;
 }
 
+.tool-bar {
+    margin-top: 8px;
+    height: 2em;
+    display: flex;
+    align-items: center;
+}
+
+button {
+    font-family: Consolas, monospace;
+    color: rgb(1, 136, 251);
+    background-color: #fff;
+    border: none;
+    margin-right: 4px;
+    cursor: pointer;
+    padding: 4px;
+}
+
 .send-button {
     flex-grow: 0;
     font-family: Consolas, monospace;

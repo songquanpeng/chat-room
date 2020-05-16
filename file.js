@@ -3,7 +3,7 @@ const router = express.Router();
 const multer = require("multer");
 const { v4: uuid } = require("uuid");
 
-const upload_path = "./public/uploads";
+const upload_path = "./public/upload";
 
 const upload = multer({
   storage: multer.diskStorage({
@@ -20,7 +20,7 @@ const upload = multer({
 router.post("/", upload.single("file"), (req, res, next) => {
   const { file } = req;
   res.json({
-    path: "/uploads/" + file.filename,
+    path: "/upload/" + file.filename,
   });
 });
 

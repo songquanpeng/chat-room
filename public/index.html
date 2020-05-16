@@ -13,6 +13,11 @@
 <div class="container">
   <div id="dialog" class="dialog">
   </div>
+  <div class="tool-bar">
+    <input id="fileInput" type="file" style="display: none" onchange="uploadFile()">
+    <button onclick="document.getElementById('fileInput').click()">File</button>
+    <button onclick="clearMessage()">Clear</button>
+  </div>
   <div class="panel">
     <input id="input" class="message-box" autofocus>
     <button onclick="send()" class="send-button">Send</button>

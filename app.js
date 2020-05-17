@@ -110,6 +110,9 @@ io.sockets.on("connection", function (socket) {
         let username = room.users.get(socket.id).username;
         room.usernameSet.delete(username);
         room.users.delete(socket.id);
+        if (room.users.size === 0) {
+          rooms.delete(roomID);
+        }
         let data = {
           content: `${username} left`,
           sender: "system",

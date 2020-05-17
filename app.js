@@ -2,11 +2,12 @@ const express = require("express");
 const path = require("path");
 const cors = require("cors");
 const serveStatic = require("serve-static");
-const uploadRouter = require("./file");
+const uploadRouter = require("./routes/upload");
 const app = express();
 const server = require("http").createServer(app);
 let io = require("socket.io")(server);
-let users = new Set();
+let users = new Map();
+let usernameSet = new Set();
 
 app.use(cors());
 app.use("/upload", uploadRouter);
@@ -19,14 +20,16 @@ app.use(function (req, res) {
 io.sockets.on("connection", function (socket) {
   socket.on("register", function (username) {
     username = username.trim();
-    if (users.has(username)) {
+    if (usernameSet.has(username)) {
       socket.emit("conflict username");
     } else {
-      users.add(username);
-      socket.username = username;
+      usernameSet.add(username);
+      users.set(socket.id, {
+        username,
+      });
       socket.emit("register success");
       let data = {
-        content: `user "${username}" has connected`,
+        content: `${username} join the chat`,
         sender: "system",
         type: "TEXT",
       };
@@ -35,22 +38,33 @@ io.sockets.on("connection", function (socket) {
   });
 
   socket.on("message", function (data) {
-    if (!data) return;
-    if (data.content === undefined) return;
-    if (data.type === undefined) data.type = "TEXT";
-    let username = socket.username;
-    if (username === undefined || username === "") {
-      username = "Anonymous";
+    if (users.has(socket.id)) {
+      if (!data) return;
+      if (data.content === undefined) return;
+      if (data.type === undefined) data.type = "TEXT";
+      let username = users.get(socket.id).username;
+      if (username === undefined || username === "") {
+        username = "Anonymous";
+      }
+      data.sender = username;
+      io.emit("message", data);
+    } else {
+      let data = {
+        content: `login has expired`,
+        sender: "system",
+        type: "TEXT",
+      };
+      socket.emit("message", data);
     }
-    data.sender = username;
-    io.emit("message", data);
   });
 
   socket.on("disconnect", () => {
-    if (socket.username) {
-      users.delete(socket.username);
+    if (users.has(socket.id)) {
+      let username = users.get(socket.id).username;
+      usernameSet.delete(username);
+      users.delete(socket.id);
       let data = {
-        content: `${socket.username} dis connected`,
+        content: `${username} left`,
         sender: "system",
         type: "TEXT",
       };

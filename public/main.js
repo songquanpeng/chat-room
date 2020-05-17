@@ -39,6 +39,11 @@ function uploadFile() {
     });
 }
 
+function changeUsername() {
+  printMessage("please input your new username");
+  registered = false;
+}
+
 function register() {
   if (username !== "") {
     socket.emit("register", username);
@@ -116,10 +121,15 @@ function initSocket() {
   });
   socket.on("register success", function () {
     registered = true;
+    localStorage.setItem("username", username);
     clearInputBox();
   });
   socket.on("conflict username", function () {
-    printMessage("The username is already taken.");
+    registered = false;
+    localStorage.setItem("username", "");
+    printMessage(
+      "the username is already been taken, please input a new username"
+    );
   });
 }
 
@@ -144,5 +154,10 @@ window.onload = function () {
       send();
     }
   });
-  printMessage("please input your username");
+  username = localStorage.getItem("username");
+  if (username) {
+    register();
+  } else {
+    printMessage("please input your username");
+  }
 };

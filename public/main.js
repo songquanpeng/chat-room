@@ -56,10 +56,10 @@ function processInput(input) {
   switch (input) {
     case "":
       break;
-    case "\\help":
+    case "help":
       printMessage("https://github.com/songquanpeng/chat-room", "system");
       break;
-    case "\\clear":
+    case "clear":
       clearMessage();
       break;
     default:

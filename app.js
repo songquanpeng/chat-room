@@ -42,8 +42,10 @@ io.sockets.on("connection", function (socket) {
       socket.emit("conflict username");
     } else {
       room.usernameSet.add(username);
+      let isFirstPerson = room.users.size === 0;
       room.users.set(socket.id, {
         username,
+        isAdmin: isFirstPerson,
       });
       userID2roomID.set(socket.id, roomID);
       socket.join(roomID);
@@ -63,12 +65,32 @@ io.sockets.on("connection", function (socket) {
       if (!data) return;
       if (data.content === undefined) return;
       if (data.type === undefined) data.type = "TEXT";
-      let username = room.users.get(socket.id).username;
-      if (username === undefined || username === "") {
-        username = "Anonymous";
+      let user = room.users.get(socket.id);
+      let kickMessage = undefined;
+      if (user.isAdmin) {
+        if (data.content.startsWith("kick")) {
+          let kickedUser = data.content.substring(4);
+          kickedUser = kickedUser.trim();
+          for (let [id, user] of room.users.entries()) {
+            if (user.username === kickedUser) {
+              room.users.delete(id);
+              room.usernameSet.delete(user.username);
+              kickMessage = {
+                content: `${user.username} kicked out of chat room`,
+                sender: "system",
+                type: "TEXT",
+              };
+              break;
+            }
+          }
+        }
       }
-      data.sender = username;
+      if (user.username === undefined || user.username === "") {
+        user.username = "Anonymous";
+      }
+      data.sender = user.username;
       io.to(roomID).emit("message", data);
+      if (kickMessage) io.to(roomID).emit("message", kickMessage);
     } else {
       let data = {
         content: `login has expired, please refresh the page or click change username`,

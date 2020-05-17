@@ -3,15 +3,19 @@ const path = require("path");
 const cors = require("cors");
 const serveStatic = require("serve-static");
 const uploadRouter = require("./routes/upload");
+const roomRouter = require("./routes/room");
 const app = express();
 const server = require("http").createServer(app);
 let io = require("socket.io")(server);
+app.io = io;
 let users = new Map();
 let usernameSet = new Set();
-
 app.use(cors());
-app.use("/upload", uploadRouter);
 app.use(serveStatic(path.join(__dirname, "public"), { maxAge: "600000" }));
+app.set("views", path.join(__dirname, "views"));
+app.set("view engine", "ejs");
+app.use("/upload", uploadRouter);
+app.use("/", roomRouter);
 app.use(function (req, res) {
   res.status(404);
   res.send({ error: "Not found" });

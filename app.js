@@ -8,8 +8,6 @@ const app = express();
 const server = require("http").createServer(app);
 let io = require("socket.io")(server);
 app.io = io;
-let users = new Map();
-let usernameSet = new Set();
 app.use(cors());
 app.use(serveStatic(path.join(__dirname, "public"), { maxAge: "600000" }));
 app.set("views", path.join(__dirname, "views"));
@@ -21,40 +19,59 @@ app.use(function (req, res) {
   res.send({ error: "Not found" });
 });
 
+let rooms = new Map();
+let userID2roomID = new Map();
+
+function getRoom(roomID) {
+  let room = rooms.get(roomID);
+  if (!room) {
+    room = {
+      users: new Map(),
+      usernameSet: new Set(),
+    };
+    rooms.set(roomID, room);
+  }
+  return room;
+}
+
 io.sockets.on("connection", function (socket) {
-  socket.on("register", function (username) {
+  socket.on("register", function (username, roomID = "/") {
+    let room = getRoom(roomID);
     username = username.trim();
-    if (usernameSet.has(username)) {
+    if (room.usernameSet.has(username)) {
       socket.emit("conflict username");
     } else {
-      usernameSet.add(username);
-      users.set(socket.id, {
+      room.usernameSet.add(username);
+      room.users.set(socket.id, {
         username,
       });
+      userID2roomID.set(socket.id, roomID);
+      socket.join(roomID);
       socket.emit("register success");
       let data = {
         content: `${username} join the chat`,
         sender: "system",
         type: "TEXT",
       };
-      io.sockets.emit("message", data);
+      io.to(roomID).emit("message", data);
     }
   });
 
-  socket.on("message", function (data) {
-    if (users.has(socket.id)) {
+  socket.on("message", function (data, roomID = "/") {
+    let room = getRoom(roomID);
+    if (room.users.has(socket.id)) {
       if (!data) return;
       if (data.content === undefined) return;
       if (data.type === undefined) data.type = "TEXT";
-      let username = users.get(socket.id).username;
+      let username = room.users.get(socket.id).username;
       if (username === undefined || username === "") {
         username = "Anonymous";
       }
       data.sender = username;
-      io.emit("message", data);
+      io.to(roomID).emit("message", data);
     } else {
       let data = {
-        content: `login has expired`,
+        content: `login has expired, please refresh the page or click change username`,
         sender: "system",
         type: "TEXT",
       };
@@ -63,16 +80,21 @@ io.sockets.on("connection", function (socket) {
   });
 
   socket.on("disconnect", () => {
-    if (users.has(socket.id)) {
-      let username = users.get(socket.id).username;
-      usernameSet.delete(username);
-      users.delete(socket.id);
-      let data = {
-        content: `${username} left`,
-        sender: "system",
-        type: "TEXT",
-      };
-      io.sockets.emit("message", data);
+    let roomID = userID2roomID.get(socket.id);
+    if (roomID) {
+      let room = getRoom(roomID);
+      if (room.users.has(socket.id)) {
+        userID2roomID.delete(socket.id);
+        let username = room.users.get(socket.id).username;
+        room.usernameSet.delete(username);
+        room.users.delete(socket.id);
+        let data = {
+          content: `${username} left`,
+          sender: "system",
+          type: "TEXT",
+        };
+        io.to(roomID).emit("message", data);
+      }
     }
   });
 });

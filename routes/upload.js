@@ -12,7 +12,7 @@ const upload = multer({
     },
     filename: function (req, file, callback) {
       let extension = file.originalname.split(".").pop();
-      callback(null, uuid() + "." + extension);
+      callback(null, file.originalname);
     },
   }),
 });

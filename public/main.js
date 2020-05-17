@@ -1,6 +1,7 @@
 let socket;
 let username = "";
 let registered = false;
+let roomID = window.location.pathname;
 let dialogElement;
 let inputElement;
 let fileInputElement;
@@ -46,7 +47,7 @@ function changeUsername() {
 
 function register() {
   if (username !== "") {
-    socket.emit("register", username);
+    socket.emit("register", username, roomID);
   }
 }
 
@@ -111,7 +112,7 @@ function sendMessage(content, type = "TEXT") {
     content,
     type,
   };
-  socket.emit("message", data);
+  socket.emit("message", data, roomID);
 }
 
 function initSocket() {

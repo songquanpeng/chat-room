@@ -2,6 +2,7 @@
 <details>
 <summary><strong><i>Click here to expend the English version of readme.</i></strong></summary>
 <div>
+
 ## Description
 + This is a chat room application.
 + No registration required.

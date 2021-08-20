@@ -77,33 +77,43 @@ function clearMessage() {
   dialogElement.innerHTML = "";
 }
 
+function char2color(c) {
+  let num = c.charCodeAt(0);
+  let r = Math.floor(num % 255);
+  let g = Math.floor((num / 255) % 255);
+  let b = Math.floor((r + g) % 255);
+  if (g < 20) g += 20;
+  return `#${r.toString(16)}${g.toString(16)}${b.toString(16)}`;
+}
+
 function printMessage(content, sender = "system", type = "TEXT") {
-  let name = document.createElement("span");
-  name.innerText = `${sender}: `;
-  name.setAttribute("class", "name");
-  dialogElement.appendChild(name);
-  let e;
+  let html;
+  let firstChar = sender[0];
   switch (type) {
     case "IMAGE":
-      e = document.createElement("img");
-      e.setAttribute("src", content);
-      e.setAttribute("alt", content);
+      html = `<div class="chat-message shown">
+    <div class="avatar" style="background-color:${char2color(firstChar)}">${firstChar.toUpperCase()}</div>
+    <div class="nickname">${sender}</div>
+    <div class="message-box"><img src="${content}" alt="${content}"></div>
+</div>`
       break;
     case "FILE":
-      e = document.createElement("a");
-      e.setAttribute("href", content);
-      e.setAttribute("download", content);
-      e.innerText = content;
+      html = `<div class="chat-message shown">
+    <div class="avatar" style="background-color:${char2color(firstChar)}">${firstChar.toUpperCase()}</div>
+    <div class="nickname">${sender}</div>
+    <div class="message-box"><a href="${content}" download="${content}">${content}</a></div>
+</div>`
       break;
     case "TEXT":
     default:
-      e = document.createElement("span");
-      e.innerText = `${content}`;
+      html = `<div class="chat-message shown">
+    <div class="avatar" style="background-color:${char2color(firstChar)}">${firstChar.toUpperCase()}</div>
+    <div class="nickname">${sender}</div>
+    <div class="message-box"><p>${content}</p></div>
+</div>`
       break;
   }
-  dialogElement.appendChild(e);
-  let breadLine = document.createElement("br");
-  dialogElement.appendChild(breadLine);
+  dialogElement.insertAdjacentHTML('beforeend', html)
   dialogElement.scrollTop = dialogElement.scrollHeight;
 }
 

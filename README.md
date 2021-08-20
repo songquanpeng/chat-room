@@ -46,3 +46,6 @@ cd char-room
 npm install
 npm start
 ```
+
+## 其他
+部分样式代码来自：https://github.com/koishijs/koishi ， MIT 协议。

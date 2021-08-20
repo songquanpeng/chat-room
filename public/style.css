@@ -47,29 +47,20 @@ body {
     overflow-y: scroll;
     font-size: large;
     border: 2px;
-    background-color: #fff;
-    padding: 8px 10px;
+    background-color: #f3f4f5;
+    padding: 8px 20px;
     margin-top: 8px;
 }
 
-.dialog p, .dialog span {
-    padding: 0;
-    margin: 4px;
-}
-
-.dialog a {
+.message-box a {
     color: rgb(0, 164, 255);
     font-weight: bold;
 }
 
-.dialog img {
+.message-box img {
     max-width: 60%;
     display: block;
-}
-
-.name {
-    font-weight: bold;
-   color: rgb(1, 136, 251);
+    margin: 4px;
 }
 
 .panel {
@@ -82,7 +73,7 @@ body {
     font-family: Consolas, "Microsoft YaHei", monospace;
 }
 
-.message-box {
+.input-box {
     flex-grow: 1;
     padding: 4px 8px;
     font-size: large;
@@ -120,4 +111,93 @@ button {
 .send-button:active {
     background-color: rgb(0, 20, 251);
     padding: 0;
+}
+
+/*
+The following style code is copied from: https://github.com/koishijs/koishi, MIT license.
+*/
+
+.chat-message {
+    position: relative;
+    margin: 1rem 0;
+    opacity: 0;
+    transform: translateX(-20%);
+    transition: transform .3s ease-out,opacity .3s ease
+}
+
+.chat-message.shown {
+    opacity: 1;
+    transform: translateX(0)
+}
+
+.avatar,.nickname {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none
+}
+
+.avatar {
+    width: 2.8rem;
+    height: 2.8rem;
+    position: absolute;
+    border-radius: 100%;
+    transform: translateY(-1px);
+    pointer-events: none;
+    text-align: center;
+    line-height: 2.8rem;
+    font-size: 1.6rem;
+    color: #fff;
+    font-family: "Comic Sans MS", serif
+}
+
+.nickname {
+    position: relative;
+    margin: 0 0 .4rem 4.2rem;
+    font-weight: 700;
+    font-size: .9rem
+}
+
+.message-box {
+    position: relative;
+    margin-left: 4.2rem;
+    width: fit-content;
+    border-radius: .5rem;
+    background-color: #fff;
+    word-break: break-all;
+    transition: background-color ease .3s
+}
+
+.chat-message:not(.no-padding) .message-box {
+    padding: .5rem .7rem
+}
+
+.message-box>img {
+    border-radius: .5rem
+}
+
+.message-box img {
+    vertical-align: middle
+}
+
+.message-box p>img {
+    margin: .2rem 0
+}
+
+.message-box::before {
+    content: "";
+    position: absolute;
+    right: 100%;
+    top: 0;
+    width: 12px;
+    height: 12px;
+    border: 0 solid transparent;
+    border-bottom: 8px currentColor;
+    border-radius: 0 0 0 32px;
+    color: #fff;
+    transition: color ease .3s
+}
+
+.message-box p {
+    margin: 0
 }

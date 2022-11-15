@@ -10,6 +10,9 @@
 + **Each different URL is an independent chat room.**
 + The first person get into the chat room will be the administrator of this chat room.
 
+## Demo
+![image](https://user-images.githubusercontent.com/39998050/201881861-e72e91a2-16fb-4709-8f71-561e9f0a4540.png)
+
 ## Todo list
 - [x] Support send text message.
 - [x] Support send image.
@@ -38,6 +41,9 @@
 演示站：https://chat-room-xx.herokuapp.com/
 
 首次访问需要稍等几秒，这是由于 Heroku 把应用冻结了，之后就会好很多。
+
+截图展示：
+![image](https://user-images.githubusercontent.com/39998050/201881861-e72e91a2-16fb-4709-8f71-561e9f0a4540.png)
 
 ## 部署
 ```sh

@@ -1,0 +1,8 @@
+.idea
+.github
+node_modules
+.env
+data.db-journal
+.vscode
+*.db
+*.*~

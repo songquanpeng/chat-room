@@ -46,11 +46,26 @@
 ![image](https://user-images.githubusercontent.com/39998050/201881861-e72e91a2-16fb-4709-8f71-561e9f0a4540.png)
 
 ## 部署
-```sh
-git clone https://github.com/songquanpeng/chat-room
+### 通过 Docker 部署
+执行：`docker run --restart=always -d -p 3000:3000 justsong/chat-room`
+
+开放的端口号为 3000，之后用 Nginx 配置域名，反代以及 SSL 证书即可。
+
+更新版本的命令：`docker run --rm -v /var/run/docker.sock:/var/run/docker.sock containrrr/watchtower -cR`
+
+### 通过源码部署
+```shell script
+git clone https://github.com/songquanpeng/chat-room.git
 cd chat-room
+# 安装依赖
 npm install
+# 启动服务
 npm start
+# 推荐使用 pm2 进行启动
+# 1. 安装 pm2
+npm i -g pm2
+# 2. 使用 pm2 启动服务
+pm2 start ./app.js --name chat-room
 ```
 
 ## 其他

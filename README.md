@@ -48,7 +48,7 @@
 ## 部署
 ```sh
 git clone https://github.com/songquanpeng/chat-room
-cd char-room
+cd chat-room
 npm install
 npm start
 ```

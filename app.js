@@ -39,7 +39,7 @@ io.sockets.on("connection", function (socket) {
   socket.on("register", function (username, roomID = "/") {
     let room = getRoom(roomID);
     username = username.trim();
-    if (room.usernameSet.has(username)) {
+    if (room.usernameSet.has(username) || username === "system") {
       socket.emit("conflict username");
     } else {
       room.usernameSet.add(username);

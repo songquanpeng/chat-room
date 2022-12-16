@@ -4,19 +4,20 @@ const cors = require("cors");
 const serveStatic = require("serve-static");
 const uploadRouter = require("./routes/upload");
 const roomRouter = require("./routes/room");
+const {md2html} = require("./utils");
 const app = express();
 const server = require("http").createServer(app);
 let io = require("socket.io")(server);
 app.io = io;
 app.use(cors());
-app.use(serveStatic(path.join(__dirname, "public"), { maxAge: "600000" }));
+app.use(serveStatic(path.join(__dirname, "public"), {maxAge: "600000"}));
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 app.use("/upload", uploadRouter);
 app.use("/", roomRouter);
 app.use(function (req, res) {
   res.status(404);
-  res.send({ error: "Not found" });
+  res.send({error: "Not found"});
 });
 
 let rooms = new Map();
@@ -89,6 +90,9 @@ io.sockets.on("connection", function (socket) {
         user.username = "Anonymous";
       }
       data.sender = user.username;
+      if (data.type === "TEXT") {
+        data.content = md2html(data.content);
+      }
       io.to(roomID).emit("message", data);
       if (kickMessage) io.to(roomID).emit("message", kickMessage);
     } else {

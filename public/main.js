@@ -6,9 +6,9 @@ let dialogElement;
 let inputElement;
 let fileInputElement;
 
-function isImage(fileName) {
+function filename2type(fileName) {
   let extension = fileName.split(".").pop().toLowerCase();
-  let formats = [
+  let imageFormats = [
     "png",
     "jpg",
     "bmp",
@@ -20,7 +20,23 @@ function isImage(fileName) {
     "tiff",
     "webp",
   ];
-  return formats.includes(extension);
+  let audioFormats = [
+    "mp3",
+    "wav",
+    "ogg",
+  ];
+  let videoFormats = [
+    "mp4",
+    "webm",
+  ];
+  if (imageFormats.includes(extension)) {
+    return "IMAGE";
+  } else if (audioFormats.includes(extension)) {
+    return "AUDIO";
+  } else if (videoFormats.includes(extension)) {
+    return "VIDEO";
+  }
+  return "FILE";
 }
 
 function uploadFile() {
@@ -36,12 +52,12 @@ function uploadFile() {
     })
     .then((data) => {
       let filePath = data.path;
-      sendMessage(filePath, isImage(file.name) ? "IMAGE" : "FILE");
+      sendMessage(filePath, filename2type(file.name));
     });
 }
 
 function changeUsername() {
-  printMessage("please input your new username");
+  printMessage("Please input your new username.");
   registered = false;
 }
 
@@ -57,7 +73,7 @@ function processInput(input) {
     case "":
       break;
     case "help":
-      printMessage("https://github.com/songquanpeng/chat-room", "system");
+      printMessage("https://github.com/songquanpeng/chat-room", "System");
       break;
     case "clear":
       clearMessage();
@@ -97,11 +113,27 @@ function printMessage(content, sender = "system", type = "TEXT") {
     <div class="message-box"><img src="${content}" alt="${content}"></div>
 </div>`
       break;
-    case "FILE":
+    case "AUDIO":
       html = `<div class="chat-message shown">
     <div class="avatar" style="background-color:${char2color(firstChar)}">${firstChar.toUpperCase()}</div>
     <div class="nickname">${sender}</div>
-    <div class="message-box"><a href="${content}" download="${content}">${content}</a></div>
+    <div class="message-box"><audio controls src="${content}"></div>
+</div>`
+      break;
+    case "VIDEO":
+      html = `<div class="chat-message shown">
+    <div class="avatar" style="background-color:${char2color(firstChar)}">${firstChar.toUpperCase()}</div>
+    <div class="nickname">${sender}</div>
+    <div class="message-box"><video controls><source src="${content}"></video></div>
+</div>`
+      break;
+    case "FILE":
+      let parts = content.split('/');
+      let text = parts[parts.length - 1];
+      html = `<div class="chat-message shown">
+    <div class="avatar" style="background-color:${char2color(firstChar)}">${firstChar.toUpperCase()}</div>
+    <div class="nickname">${sender}</div>
+    <div class="message-box"><a href="${content}" download="${text}">${text}</a></div>
 </div>`
       break;
     case "TEXT":
@@ -139,7 +171,7 @@ function initSocket() {
     registered = false;
     localStorage.setItem("username", "");
     printMessage(
-      "the username is already been taken, please input a new username"
+      "The username is already been taken, please input a new username."
     );
   });
 }
@@ -169,6 +201,6 @@ window.onload = function () {
   if (username) {
     register();
   } else {
-    printMessage("please input your username");
+    printMessage("Please input your username.");
   }
 };

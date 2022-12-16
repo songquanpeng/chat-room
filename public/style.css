@@ -63,6 +63,16 @@ body {
     margin: 4px;
 }
 
+.message-box audio {
+    max-width: 100%;
+    display: block;
+}
+
+.message-box video {
+    max-width: 100%;
+    display: block;
+}
+
 .panel {
     width: 100%;
     height: 3em;
